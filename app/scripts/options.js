@@ -958,8 +958,10 @@ var ateOptionsModule = (function($)
           }
         });
 
+        var jsonShortcuts = JSON.stringify(shortcuts, undefined, 2);
+
         // Update UI text area with the code
-        $('#importJSON').val(JSON.stringify(shortcuts, undefined, 2));
+        $('#importJSON').val(jsonShortcuts);
         $('#importJSON').autosize();
 
         // Save new shortcuts
@@ -967,6 +969,56 @@ var ateOptionsModule = (function($)
           if (completionBlock) {
             completionBlock($('#importJSON').val());
           }
+        });
+
+        $('#exportJSONButton').off('click').click(function(event) {
+          var blob = new Blob([jsonShortcuts], {type: 'application/json'});
+          var url = URL.createObjectURL(blob);
+          var downloadLink = $('<a/>', {
+            href: url,
+            download: 'shortcuts.json'
+          }).appendTo('body');
+          
+          downloadLink[0].click();
+          downloadLink.remove();
+          URL.revokeObjectURL(url);
+        });
+
+        // Import JSON from a file
+        $('#importJSONFile').off('change').change(function(event) {
+          var file = event.target.files[0];
+          if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+              var importedData = e.target.result;
+              try {
+                var parsedData = JSON.parse(importedData);
+                $.each(parsedData, function(key, value) {
+                  var storageObject = {};
+                  storageObject[ATE_CONST.SHORTCUT_PREFIX + key] = value;
+                  chrome.storage.sync.set(storageObject, function() {
+                    if (chrome.runtime.lastError) {
+                      console.error(chrome.runtime.lastError);
+                      showCrouton('Error saving shortcuts!', 'red');
+                    } else {
+                      showCrouton('Shortcuts imported successfully!', 'green');
+                    }
+                  });
+                });
+                if (completionBlock) {
+                  completionBlock(parsedData);
+                }
+              } catch (error) {
+                showCrouton('Invalid JSON file!', 'red');
+              }
+            };
+            reader.readAsText(file);
+          }
+        });
+
+        // Trigger file input click when import button is clicked
+        $('#importJSONFileButton').off('click').click(function(event) {
+          $('#importJSONFile').click();
         });
       }
     });

@@ -1,5 +1,5 @@
 {
-	"name": "__MSG_EXTENSION_NAME__",
+  "name": "__MSG_EXTENSION_NAME__",
   "short_name": "__MSG_EXTENSION_SHORTNAME__",
   "version": "1.5.0",
   "manifest_version": 3,
@@ -28,17 +28,17 @@
   "options_page": "options.html",
   "content_scripts": [
     {
-  		"matches": [ "<all_urls>" ],
-  		"match_about_blank": true,
-  		"all_frames": true,
+      "matches": ["<all_urls>"],
+      "match_about_blank": true,
+      "all_frames": true,
       "js": [
-  			"vendor/scripts/jquery-2.1.1-simplified.min.js",
-  			"vendor/scripts/moment-with-locales.min.js",
+        "vendor/scripts/jquery-2.1.1-simplified.min.js",
+        "vendor/scripts/moment-with-locales.min.js",
         "scripts/constants.js",
         "scripts/ate.js"
-  		],
+      ],
       "run_at": "document_start"
-  	}
+    }
   ],
   "omnibox": {
     "keyword" : "__MSG_KEYWORD_OMNIBAR_TRIGGER__"

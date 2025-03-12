@@ -279,7 +279,7 @@ var ateModule = (function($)
         console.log('textInput: ', textInput);
 
         // If input or textarea field, can easily change the val
-        if (textInput.nodeName == 'TEXTAREA' || textInput.nodeName == 'INPUT')
+        if (textInput.nodeName == 'TEXTAREA' || textInput.nodeName == 'INPUT' || textInput.nodeName == 'SPAN' || textInput.nodeName == 'P')
         {
           // Add whitespace if was last character
           if (WHITESPACE_REGEX.test(lastChar)) {
@@ -337,7 +337,7 @@ var ateModule = (function($)
     var cursorPosition = getCursorPosition(textInput);
 
     // Fix for input[type=email] and input[type=number]
-    if (cursorPosition === 0 && textInput.nodeName == 'INPUT')
+    if (cursorPosition === 0 && (textInput.nodeName == 'INPUT' || textInput.nodeName == 'SPAN'))
     {
       var type = textInput.getAttribute('type').toUpperCase();
       if (type == 'EMAIL' || type == 'NUMBER') {
@@ -722,7 +722,7 @@ var ateModule = (function($)
     if (!doc) {
       doc = document;
     }
-    if (el.nodeName == 'INPUT' || el.nodeName == 'TEXTAREA')
+    if (el.nodeName == 'INPUT' || el.nodeName == 'TEXTAREA' || el.nodeName == 'SPAN')
     {
       try { 	// Needed for new input[type=email] failing
         pos = el.selectionStart;
@@ -746,7 +746,7 @@ var ateModule = (function($)
   {
     console.log('setCursorPosition:', pos);
     var sel, range;
-    if (el.nodeName == 'INPUT' || el.nodeName == 'TEXTAREA') {
+    if (el.nodeName == 'INPUT' || el.nodeName == 'TEXTAREA' || el.nodeName == 'SPAN') {
       try {	// Needed for new input[type=email] failing
         if (el.setSelectionRange) {
           el.setSelectionRange(pos, pos);
