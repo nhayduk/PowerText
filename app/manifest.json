@@ -1,23 +1,19 @@
 {
 	"name": "__MSG_EXTENSION_NAME__",
   "short_name": "__MSG_EXTENSION_SHORTNAME__",
-  "version": "1.2.0",
-  "manifest_version": 2,
+  "version": "1.5.0",
+  "manifest_version": 3,
   "description": "__MSG_EXTENSION_DESCRIPTION__",
   "icons": {
-    "16": "images/icon-16.png"
-		, "48": "images/icon-48.png"
-		, "128": "images/icon-128.png"
+    "16": "images/icon-16.png",
+    "48": "images/icon-48.png",
+		"128": "images/icon-128.png"
   },
   "default_locale": "en",
   "offline_enabled": true,
   "background": {
-    "scripts": [
-      "scripts/constants.js",
-      "scripts/backgroundInstall.js",
-      "scripts/backgroundMessages.js",
-      "scripts/backgroundOmnibox.js"
-    ]
+    "service_worker": "scripts/background.js",
+    "type": "module"
   },
   "permissions": [
     "storage",
@@ -46,12 +42,5 @@
   ],
   "omnibox": {
     "keyword" : "__MSG_KEYWORD_OMNIBAR_TRIGGER__"
-  },
-  "browser_action": {
-    "default_icon": {
-      "19": "images/icon-19.png",
-      "38": "images/icon-38.png"
-    },
-    "default_title": "__MSG_BROWSER_ACTION_TITLE__"
   }
 }

@@ -10,8 +10,10 @@ function extras(cb) {
   return gulp.src([
     'app/*.*',
     'app/_locales/**',
-    '!app/*.json',
-    '!app/*.html',
+    'app/vendor/**',
+    'app/scripts/**',
+    'app/*.json',
+    'app/*.html',
   ], {
     base: 'app',
     dot: true
@@ -57,23 +59,8 @@ function html(cb) {
 }
 
 function chromeManifest(cb) {
-  var cwd = process.cwd();
-  return $.merge(gulp.src('app/manifest.json')
-    .pipe($.chromeManifest({
-      buildnumber: false,
-      background: {
-        target: 'scripts/background.js',
-        exclude: [
-          'scripts/chromereload.js'
-        ]
-      }
-  })), gulp.src('app/scripts/options.js', {base:'app/'}))
-  .pipe($.if('*.css', $.cleanCss({compatibility: '*'})))
-  .pipe($.if(/^((?!(\.min)).)*\.js$/, $.removeLogging({methods:['log']})))
-  .pipe($.if(/^((?!(\.min)).)*\.js$/, $.sourcemaps.init()))
-  .pipe($.if(/^((?!(\.min)).)*\.js$/, $.uglify()))
-  .pipe($.if(/^((?!(\.min)).)*\.js$/, $.sourcemaps.write('.')))
-  .pipe(gulp.dest('dist', {cwd: cwd}));  
+  return gulp.src('app/manifest.json') // ✅ Ensure manifest.json is copied
+    .pipe(gulp.dest('dist')); // ✅ Move to dist
 }
 
 export function clean(cb) {
