@@ -12,6 +12,9 @@ Chrome Webstore Link:
 https://chrome.google.com/webstore/detail/power-text-for-google-chr/abbedfhgcpfnmhonjhdlmndigalhandb?hl=en-US
 
 ## Version History
+v2.0.0
+ - Chrome Extension Manifest v3
+
 v1.4.0
  - Implementing import and export functionality
  - Adding support for expanding in spans for LiveChat

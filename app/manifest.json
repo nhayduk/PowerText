@@ -1,7 +1,7 @@
 {
   "name": "__MSG_EXTENSION_NAME__",
   "short_name": "__MSG_EXTENSION_SHORTNAME__",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "manifest_version": 3,
   "description": "__MSG_EXTENSION_DESCRIPTION__",
   "icons": {
@@ -38,6 +38,12 @@
         "scripts/ate.js"
       ],
       "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["scripts/powerTextMda.js"],
+      "matches": ["<all_urls>"]
     }
   ],
   "omnibox": {
