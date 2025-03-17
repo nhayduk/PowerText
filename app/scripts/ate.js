@@ -258,72 +258,73 @@ var ateModule = (function($)
         autotext = processUrls(autotext);
 
         // Handle mda
-        autotext = processMda(autotext, shortcut);
+        autotext = processMda(autotext, shortcut, function(autotext) {
 
-        // Adjust capitalization
-        switch (capitalization)
-        {
-          case ENUM_CAPITALIZATION_FIRST:
-            autotext = autotext.charAt(0).toUpperCase() + autotext.slice(1);
-            break;
+          // Adjust capitalization
+          switch (capitalization)
+          {
+            case ENUM_CAPITALIZATION_FIRST:
+              autotext = autotext.charAt(0).toUpperCase() + autotext.slice(1);
+              break;
 
-          case ENUM_CAPITALIZATION_ALL:
-            autotext = autotext.toUpperCase();
-            break;
+            case ENUM_CAPITALIZATION_ALL:
+              autotext = autotext.toUpperCase();
+              break;
 
-          default: break;
-        }
-
-        // Setup for processing
-        var domain = window.location.host;
-        console.log('textInput: ', textInput);
-
-        // If input or textarea field, can easily change the val
-        if (textInput.nodeName == 'TEXTAREA' || textInput.nodeName == 'INPUT' || textInput.nodeName == 'SPAN' || textInput.nodeName == 'P')
-        {
-          // Add whitespace if was last character
-          if (WHITESPACE_REGEX.test(lastChar)) {
-            autotext += lastChar;
+            default: break;
           }
 
-          replaceTextRegular(shortcut, autotext, textInput);
-        }
-        else	// Trouble... editable divs & special cases
-        {
-          // Add whitespace if was last character
-          if (lastChar == ' ') {
-            autotext += '&nbsp;';
-          } else if (lastChar == '\t') {
-            autoText += '&#9;';
-          }
+          // Setup for processing
+          var domain = window.location.host;
+          console.log('textInput: ', textInput);
 
-          // Check special domains
-          if (FACEBOOK_DOMAIN_REGEX.test(domain)) {
-            replaceTextFacebook(shortcut, autotext, textInput);
-          } else if (OUTLOOK_DOMAIN_REGEX.test(domain)) {
-            replaceTextOutlook(shortcut, autotext);
-          } else if (EVERNOTE_DOMAIN_REGEX.test(domain)) {
-            replaceTextEvernote(shortcut, autotext);
-          } else if (GTT_DOMAIN_REGEX.test(domain)) {
-            replaceTextGTT(shortcut, autotext);
+          // If input or textarea field, can easily change the val
+          if (textInput.nodeName == 'TEXTAREA' || textInput.nodeName == 'INPUT' || textInput.nodeName == 'SPAN' || textInput.nodeName == 'P')
+          {
+            // Add whitespace if was last character
+            if (WHITESPACE_REGEX.test(lastChar)) {
+              autotext += lastChar;
+            }
+
+            replaceTextRegular(shortcut, autotext, textInput);
+          }
+          else	// Trouble... editable divs & special cases
+          {
+            // Add whitespace if was last character
+            if (lastChar == ' ') {
+              autotext += '&nbsp;';
+            } else if (lastChar == '\t') {
+              autoText += '&#9;';
+            }
+
+            // Check special domains
+            if (FACEBOOK_DOMAIN_REGEX.test(domain)) {
+              replaceTextFacebook(shortcut, autotext, textInput);
+            } else if (OUTLOOK_DOMAIN_REGEX.test(domain)) {
+              replaceTextOutlook(shortcut, autotext);
+            } else if (EVERNOTE_DOMAIN_REGEX.test(domain)) {
+              replaceTextEvernote(shortcut, autotext);
+            } else if (GTT_DOMAIN_REGEX.test(domain)) {
+              replaceTextGTT(shortcut, autotext);
           // } else if (GDOCS_DOMAIN_REGEX.test(domain)) {
           //   replaceTextGDOCS(shortcut, autotext);
-          } else if (ATLASSIAN_DOMAIN_REGEX.test(domain)) {
-            replaceTextAtlassian(shortcut, autotext);
-          } else if (BASECAMP_DOMAIN_REGEX.test(domain)) {
-            replaceTextBasecamp(shortcut, autotext);
-          } else if (ZENDESK_DOMAIN_REGEX.test(domain)) {
-            replaceTextZendesk(shortcut, autotext);
-          } else if (CKE_EDITOR_REGEX.test(domain)) {
-            replaceTextCKE(shortcut, autotext);
-          } else {
-            console.log('Domain:', domain);
-            replaceTextContentEditable(shortcut, autotext, findFocusedNode());
+            } else if (ATLASSIAN_DOMAIN_REGEX.test(domain)) {
+              replaceTextAtlassian(shortcut, autotext);
+            } else if (BASECAMP_DOMAIN_REGEX.test(domain)) {
+              replaceTextBasecamp(shortcut, autotext);
+            } else if (ZENDESK_DOMAIN_REGEX.test(domain)) {
+              replaceTextZendesk(shortcut, autotext);
+            } else if (CKE_EDITOR_REGEX.test(domain)) {
+              replaceTextCKE(shortcut, autotext);
+            } else {
+              console.log('Domain:', domain);
+              replaceTextContentEditable(shortcut, autotext, findFocusedNode());
+            }
           }
-        }
 
-        // Always clear the buffer after a shortcut fires
-        clearTypingBuffer();
+          // Always clear the buffer after a shortcut fires
+          clearTypingBuffer();
+		});
       });	// END - getClipboardData()
     }	// END - if (autotext)
     else {  // Error
@@ -935,7 +936,7 @@ var ateModule = (function($)
   }
 
   // Process and replace ...
-  function processMda(text, shortcut)
+  async function processMda(text, shortcut, callback)
   { 
     var mdaOpenTags = [], mdaCloseTags = [];
 
@@ -946,7 +947,7 @@ var ateModule = (function($)
 
     // Only continue if we have any tags
     if (!mdaOpenTags.length) {
-      return text;
+      return callback(text);
     }
 
     // Find matching closing tag for each date
@@ -957,7 +958,7 @@ var ateModule = (function($)
 
     // Only continue if we have matching tags
     if (mdaOpenTags.length != mdaCloseTags.length) {
-      return text;
+      return callback(text);
     }
 
     // Loop through and replace date tags with formatted text
@@ -966,83 +967,39 @@ var ateModule = (function($)
     {
       var attribute = text.slice(mdaOpenTags[i] + 5, mdaCloseTags[i]);
         
-      var inputTag = document.createElement('input');
-      inputTag.setAttribute('type', 'text');    
-      inputTag.setAttribute('id', 'ec_mdavalue');
+      var mdaValue = await new Promise((resolve, reject) => {
+        var s = document.createElement('script');
+        s.src = chrome.runtime.getURL('scripts/powerTextMda.js');
+        s.onload = function() { 	
+          this.remove();
+          var mdaValueElement = document.getElementById('ec_mdavalue');
+          resolve(mdaValueElement ? mdaValueElement.value : '');
+		  mdaValueElement.remove();
+	    };
+        s.dataset.params = JSON.stringify({attribute: attribute});
+        (document.head || document.documentElement).appendChild(s);
+      });
 
-      document.body.appendChild(inputTag);
-
-      var scriptTag = document.createElement('script');
-      scriptTag.setAttribute('type', 'text/javascript');    
-      scriptTag.innerHTML = 
-       'var xrm = window.top.Xrm;' +
-       'if (xrm) { ' +
-          'var split = "' + attribute + '".split(",");' +
-          'for (var i = 0; i < split.length; i++) {' +
-            'var attr = xrm.Page.getAttribute(split[i]);console.log(split[i]);console.log(attr);' +
-            'if (attr) {' +
-              'var str = null;' +
-              'switch(attr.getAttributeType()) {' +
-                'case "multiselectoptionset":' +
-                'case "optionset":' +
-                  'str = attr.getText();' +
-                  'break;' +
-                'case "datetime":' +
-                  'switch(attr.getFormat()){' +
-                    'case "date":' +
-                      'str = attr.getValue().format(Xrm.Utility.getGlobalContext().userSettings.dateFormattingInfo.ShortDatePattern);' +
-                      'break;' +
-                    'case "datetime":' +
-                      'str = attr.getValue().format(Xrm.Utility.getGlobalContext().userSettings.dateFormattingInfo.FullDateTimePattern);' +
-                      'break;' +
-                  '}' +
-                  'break;' +
-                'case "lookup":' +
-                  'var val = attr.getValue();' +
-                  'if(val.length > 0) {' +
-                    'str = val[0].name;' +
-                  '}' +
-                  'break;' +
-                'default:' +
-                  'str = attr.getValue();' +
-                  'break;' +
-              '}' +
-              'document.getElementById("ec_mdavalue").value = str;' +
-              'break;' +
-            '}' +
-          '}' +
-        '}'
-        console.log(scriptTag.innerHTML);
-      document.body.appendChild(scriptTag);
-
-      var mdaValue = document.getElementById('ec_mdavalue');
-
-      if (mdaValue && mdaValue.value) {
-        processedText.push(mdaValue.value);
+      if (mdaValue) {
+        processedText.push(mdaValue);
       } else {
         processedText.push(shortcut);
       }
-
-      mdaValue.remove();        
-      inputTag.remove();
-      scriptTag.remove();
     }
 
     // Return processed dates
-    return processedText.join('');
+    callback(processedText.join(''));
   }
 
   // Get what's stored in the clipboard
-  function getClipboardData(completionBlock) {
-    chrome.runtime.sendMessage({
-      request:'getClipboardData'
-    }, function(data) {
-      console.log('getClipboardData:', data);
-      clipboard = data.paste;
+  function getClipboardData(completionBlock) {	
+	navigator.clipboard.readText().then(function (textFromClipboard) {
+	  console.log('getClipboardData:', textFromClipboard);
+      clipboard = textFromClipboard;
       if (completionBlock) {
         completionBlock();
       }
-    });
+	}, completionBlock);
   }
 
   // Add event listeners to specific container
