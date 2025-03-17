@@ -1,10 +1,11 @@
 'use strict';
 
-chrome.runtime.onMessage.addListener(extensionMessageHandler);
-chrome.browserAction.onClicked.addListener(function(tab) {
-  chrome.runtime.openOptionsPage(); // Show options page
+// Listen for messages from the popup or content scripts
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'openOptions') {
+    chrome.runtime.openOptionsPage();
+  }
 });
-
 // Handle messages from other scripts/pages
 function extensionMessageHandler(request, sender, sendResponse)
 {
@@ -48,8 +49,8 @@ function pasteFromClipboard()
 function setExpanderEnabled(status)
 {
   if (status) {
-    chrome.browserAction.setBadgeText({text: 'ON'});
+    chrome.action.setBadgeText({ text: 'ON' });  // 🔥 FIX: Use `chrome.action`
   } else {
-    chrome.browserAction.setBadgeText({text: 'OFF'});
+    chrome.action.setBadgeText({ text: 'OFF' }); // 🔥 FIX: Use `chrome.action`
   }
 }

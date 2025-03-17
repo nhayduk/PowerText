@@ -18,10 +18,12 @@ var ATE_CONST = {
   , INSERT_MDA_CLOSE_TAG: ')'       // Closing tag ... 
   , CURSOR_TRACKING_TAG: '?atec?'    // Way to track cursor location
 };
-ATE_CONST.CURSOR_TRACKING_HTML =     // HTML to insert into expansion
-  (function() {
+ATE_CONST.CURSOR_TRACKING_HTML = (function () {
+  if (typeof document !== 'undefined') { 
     var el = document.createElement('div');
     el.appendChild(document.createComment(ATE_CONST.CURSOR_TRACKING_TAG));
     return el.innerHTML;
-  })();
+  }
+  return ''; // Return empty string if document is not available
+})();
 var DEBUG = (!chrome || chrome.i18n.getMessage('@@extension_id') !== ATE_CONST.APP_ID_PROD);
